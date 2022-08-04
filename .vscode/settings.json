@@ -1,0 +1,9 @@
+{
+  "cSpell.words": [
+    "oidc"
+  ],
+  "conventionalCommits.scopes": [
+    "repo",
+    "auth-server"
+  ]
+}
