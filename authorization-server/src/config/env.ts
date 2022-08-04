@@ -8,6 +8,7 @@ const envSchema = z.object({
   PORT: z.string(),
   DATABASE_URL: z.string(),
   SERVER_HOST: z.string(),
+  OIDC_COOKIE: z.string(),
 });
 
 const envData = envSchema.safeParse(process.env);

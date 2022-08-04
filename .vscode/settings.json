@@ -1,6 +1,9 @@
 {
   "cSpell.words": [
-    "oidc"
+    "Backchannel",
+    "jwks",
+    "oidc",
+    "pkce"
   ],
   "conventionalCommits.scopes": [
     "repo",

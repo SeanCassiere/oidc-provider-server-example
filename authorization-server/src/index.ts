@@ -10,15 +10,17 @@ const server = createServer(app);
 
 app.set("view engine", "ejs");
 app.use(express.static("public"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 const ISSUER = env.SERVER_HOST + ":" + env.PORT;
 
 async function main() {
-  const oidc = new Provider(ISSUER, OidcProviderConfiguration);
+  const oidcConfiguration = await OidcProviderConfiguration()
+  const oidc = new Provider(ISSUER, oidcConfiguration);
 
   app.use(oidc.callback());
+
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
 
   app.get("/health", (_, res) => res.send({ status: "OK", uptime: process.uptime() }));
 
