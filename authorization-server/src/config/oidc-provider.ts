@@ -27,7 +27,7 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
       devInteractions: { enabled: true }, // change in prod
       deviceFlow: { enabled: true },
       revocation: { enabled: true },
-      backchannelLogout: { enabled: true },
+      backchannelLogout: { enabled: true, ack: "draft-07" },
       clientCredentials: { enabled: true },
       userinfo: { enabled: true },
       jwtUserinfo: { enabled: true },
