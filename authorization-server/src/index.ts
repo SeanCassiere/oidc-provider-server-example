@@ -14,10 +14,10 @@ app.use(express.static("public"));
 const ISSUER = env.SERVER_HOST + ":" + env.PORT;
 
 async function main() {
-  const oidcConfiguration = await OidcProviderConfiguration()
+  const oidcConfiguration = await OidcProviderConfiguration();
   const oidc = new Provider(ISSUER, oidcConfiguration);
 
-  app.use(oidc.callback());
+  app.use("/oidc", oidc.callback());
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -26,7 +26,7 @@ async function main() {
 
   server.listen(env.PORT, () => {
     console.log(`🚀 app is running at ${ISSUER} in the ${env.NODE_ENV} environment`);
-    console.log(`Check ${ISSUER}/.well-known/openid-configuration`);
+    console.log(`Check ${ISSUER}/oidc/.well-known/openid-configuration`);
   });
 }
 

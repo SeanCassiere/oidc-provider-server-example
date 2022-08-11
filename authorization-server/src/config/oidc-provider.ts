@@ -1,4 +1,5 @@
-import { Configuration, JWK } from "oidc-provider";
+import type { Configuration, JWK, Account } from "oidc-provider";
+import { PrismaAdapter } from "../oidc/Adapter";
 
 import { generateJwksKeys, getJwksKeystore } from "../oidc/jwks";
 import { env } from "./env";
@@ -9,18 +10,35 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
   const jsonKeystore = keystore.toJSON(true) as { keys: JWK[] };
 
   const config: Configuration = {
-    clients: [
-      {
-        client_id: "foo",
-        client_secret: "bar",
-        redirect_uris: ["http://lvh.me:8080/cb", "https://oidcdebugger.com/debug"],
-      },
-    ],
+    adapter: PrismaAdapter,
+    // clients: [
+    //   {
+    //     client_id: "foo",
+    //     client_secret: "bar",
+    //     redirect_uris: ["https://oidcdebugger.com/debug"],
+    //   },
+    // ],
+    // clientDefaults: {
+    //   response_types: ["code", "code id_token"],
+    //   grant_types: ["authorization_code", "implicit", "refresh_token", "client_credentials"],
+    // },
+    clients: [],
     jwks: jsonKeystore,
     cookies: {
       keys: [env.OIDC_COOKIE],
     },
     routes: {
+      authorization: "/auth",
+      backchannel_authentication: "/backchannel",
+      code_verification: "/device",
+      device_authorization: "/device/auth",
+      end_session: "/session/end",
+      introspection: "/token/introspection",
+      jwks: "/jwks",
+      pushed_authorization_request: "/request",
+      registration: "/register",
+      revocation: "/token/revocation",
+      token: "/token",
       userinfo: "/userinfo",
     },
     features: {
@@ -78,6 +96,20 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
         return 14 * 24 * 60 * 60; // 14 days in seconds
       },
       Session: 1209600 /* 14 days in seconds */,
+    },
+    findAccount: async (ctx, sub, token) => {
+      const account: Account = {
+        accountId: sub,
+        claims: async (use, scope, claims, rejected) => {
+          console.log("account", { use, scope, claims, rejected });
+          return {
+            sub,
+            ...claims,
+          };
+        },
+      };
+      console.log("account", account);
+      return account;
     },
   };
 
