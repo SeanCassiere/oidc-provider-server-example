@@ -1,4 +1,5 @@
 import type { Configuration, JWK, Account } from "oidc-provider";
+import { Account as AccountClass } from "../oidc/Account";
 import { PrismaAdapter } from "../oidc/Adapter";
 
 import { generateJwksKeys, getJwksKeystore } from "../oidc/jwks";
@@ -27,6 +28,19 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
     cookies: {
       keys: [env.OIDC_COOKIE],
     },
+    claims: {
+      email: ["email", "email_verified"],
+      profile: [
+        "family_name",
+        "given_name",
+        "middle_name",
+        "name",
+        "preferred_username",
+        "profile",
+        "updated_at",
+        "created_at",
+      ],
+    },
     routes: {
       authorization: "/auth",
       backchannel_authentication: "/backchannel",
@@ -41,8 +55,13 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
       token: "/token",
       userinfo: "/userinfo",
     },
+    interactions: {
+      url(ctx, interaction) {
+        return `/interaction/${interaction.uid}`;
+      },
+    },
     features: {
-      devInteractions: { enabled: true }, // change in prod
+      devInteractions: { enabled: false }, // change in prod
       deviceFlow: { enabled: true },
       revocation: { enabled: true },
       backchannelLogout: { enabled: true, ack: "draft-07" },
@@ -97,20 +116,21 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
       },
       Session: 1209600 /* 14 days in seconds */,
     },
-    findAccount: async (ctx, sub, token) => {
-      const account: Account = {
-        accountId: sub,
-        claims: async (use, scope, claims, rejected) => {
-          console.log("account", { use, scope, claims, rejected });
-          return {
-            sub,
-            ...claims,
-          };
-        },
-      };
-      console.log("account", account);
-      return account;
-    },
+    // findAccount: async (ctx, sub, token) => {
+    //   const account: Account = {
+    //     accountId: sub,
+    //     claims: async (use, scope, claims, rejected) => {
+    //       console.log("account", { use, scope, claims, rejected });
+    //       return {
+    //         sub,
+    //         ...claims,
+    //       };
+    //     },
+    //   };
+    //   console.log("account", account);
+    //   return account;
+    // },
+    findAccount: AccountClass.findByLogin,
   };
 
   return config;

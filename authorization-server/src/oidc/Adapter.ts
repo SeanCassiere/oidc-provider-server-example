@@ -65,7 +65,7 @@ export class PrismaAdapter implements Adapter {
     // });
     // console.log(this.name, id, "upsert worked!");
 
-    console.log(this.name, id, "upsert");
+    // console.log(this.name, id, "upsert");
     const findRecord = await prisma.oidcModel.findFirst({ where: { oidc_id: id } });
     const dataBlob = payload as unknown as Prisma.JsonObject;
     let record = {
@@ -94,7 +94,7 @@ export class PrismaAdapter implements Adapter {
         ...record,
       },
     });
-    console.log(this.name, id, "upsert worked!");
+    // console.log(this.name, id, "upsert worked!");
   }
 
   /**
@@ -109,7 +109,7 @@ export class PrismaAdapter implements Adapter {
    */
   async find(id: string) {
     let record;
-    this.name, id, "called find";
+    // console.log(this.name, id, "called find");
     if (this.name === "Client") {
       record = {
         oidc_id: id,
@@ -145,7 +145,7 @@ export class PrismaAdapter implements Adapter {
     if (!record) return;
     const payload = record.model_metadata as AdapterPayload;
     const returnPayload = { id: record.oidc_id, ...payload, consumed: record.consumed ? true : false };
-    console.log(this.name, id, "find worked!", returnPayload);
+    // console.log(this.name, id, "find worked!", returnPayload);
     return returnPayload;
   }
 
@@ -197,7 +197,7 @@ export class PrismaAdapter implements Adapter {
 
     if (!record) return;
     const payload = record.model_metadata as AdapterPayload;
-    console.log(this.name, uId, "findByUid worked!");
+    // console.log(this.name, uId, "findByUid worked!");
     return { id: record.oidc_id, ...payload };
   }
 

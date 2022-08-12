@@ -23,7 +23,7 @@ model OidcModel {
   client_id      String?
   account_id     String?
   createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([oidc_id])
 }
