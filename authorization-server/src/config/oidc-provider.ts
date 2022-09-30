@@ -1,4 +1,6 @@
-import { Configuration, JWK } from "oidc-provider";
+import type { Configuration, JWK, Account } from "oidc-provider";
+import { Account as AccountClass } from "../oidc/Account";
+import { PrismaAdapter } from "../oidc/Adapter";
 
 import { generateJwksKeys, getJwksKeystore } from "../oidc/jwks";
 import { env } from "./env";
@@ -9,22 +11,57 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
   const jsonKeystore = keystore.toJSON(true) as { keys: JWK[] };
 
   const config: Configuration = {
-    clients: [
-      {
-        client_id: "foo",
-        client_secret: "bar",
-        redirect_uris: ["http://lvh.me:8080/cb", "https://oidcdebugger.com/debug"],
-      },
-    ],
+    adapter: PrismaAdapter,
+    // clients: [
+    //   {
+    //     client_id: "foo",
+    //     client_secret: "bar",
+    //     redirect_uris: ["https://oidcdebugger.com/debug"],
+    //   },
+    // ],
+    // clientDefaults: {
+    //   response_types: ["code", "code id_token"],
+    //   grant_types: ["authorization_code", "implicit", "refresh_token", "client_credentials"],
+    // },
+    clients: [],
     jwks: jsonKeystore,
     cookies: {
       keys: [env.OIDC_COOKIE],
     },
+    claims: {
+      email: ["email", "email_verified"],
+      profile: [
+        "family_name",
+        "given_name",
+        "middle_name",
+        "name",
+        "preferred_username",
+        "profile",
+        "updated_at",
+        "created_at",
+      ],
+    },
     routes: {
+      authorization: "/auth",
+      backchannel_authentication: "/backchannel",
+      code_verification: "/device",
+      device_authorization: "/device/auth",
+      end_session: "/session/end",
+      introspection: "/token/introspection",
+      jwks: "/jwks",
+      pushed_authorization_request: "/request",
+      registration: "/register",
+      revocation: "/token/revocation",
+      token: "/token",
       userinfo: "/userinfo",
     },
+    interactions: {
+      url(ctx, interaction) {
+        return `/interaction/${interaction.uid}`;
+      },
+    },
     features: {
-      devInteractions: { enabled: true }, // change in prod
+      devInteractions: { enabled: false }, // change in prod
       deviceFlow: { enabled: true },
       revocation: { enabled: true },
       backchannelLogout: { enabled: true, ack: "draft-07" },
@@ -79,6 +116,21 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
       },
       Session: 1209600 /* 14 days in seconds */,
     },
+    // findAccount: async (ctx, sub, token) => {
+    //   const account: Account = {
+    //     accountId: sub,
+    //     claims: async (use, scope, claims, rejected) => {
+    //       console.log("account", { use, scope, claims, rejected });
+    //       return {
+    //         sub,
+    //         ...claims,
+    //       };
+    //     },
+    //   };
+    //   console.log("account", account);
+    //   return account;
+    // },
+    findAccount: AccountClass.findByLogin,
   };
 
   return config;
