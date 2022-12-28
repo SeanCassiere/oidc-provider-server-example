@@ -23,7 +23,7 @@
     "@types/node": "^18.11.18",
     "@types/node-jose": "^1.1.10",
     "@types/oidc-provider": "^8.0.0",
-    "nodemon": "^2.0.19",
+    "nodemon": "^2.0.20",
     "prisma": "^4.8.0",
     "rimraf": "^3.0.2",
     "ts-node": "^10.9.1",
