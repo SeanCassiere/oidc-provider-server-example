@@ -1,9 +1,10 @@
 import type { Configuration, JWK } from "oidc-provider";
-// import { Account as AccountClass } from "../oidc/Account";
-import { PrismaAdapter } from "../oidc/Adapter.mjs";
 
-import { generateJwksKeys, getJwksKeystore } from "../oidc/jwks.mjs";
 import { env } from "./env.mjs";
+
+import { PrismaAdapter } from "../oidc/Adapter.mjs";
+import { findAccount } from "../oidc/findAccount.mjs";
+import { generateJwksKeys, getJwksKeystore } from "../oidc/jwks.mjs";
 
 export const OidcProviderConfiguration: () => Promise<Configuration> = async () => {
   await generateJwksKeys();
@@ -17,12 +18,11 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
         client_id: "foo",
         client_secret: "bar",
         redirect_uris: ["https://oidcdebugger.com/debug"],
+        grant_types: ["implicit", "authorization_code", "client_credentials"],
+        response_types: ["id_token", "code", "code id_token"],
+        scope: "openid",
       },
     ],
-    clientDefaults: {
-      response_types: ["code", "code id_token"],
-      grant_types: ["authorization_code", "implicit", "refresh_token", "client_credentials"],
-    },
     jwks: jsonKeystore,
     cookies: {
       keys: [env.OIDC_COOKIE],
@@ -30,6 +30,32 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
     claims: {
       email: ["email", "email_verified"],
       profile: ["family_name", "given_name", "middle_name", "name", "preferred_username", "profile"],
+    },
+    features: {
+      // devInteractions: { enabled: false }, // change in prod
+      deviceFlow: { enabled: true },
+      revocation: { enabled: true },
+      backchannelLogout: { enabled: true },
+      clientCredentials: { enabled: true },
+      userinfo: { enabled: true },
+      jwtUserinfo: { enabled: true },
+    },
+    clientBasedCORS(ctx, origin, client) {
+      return true;
+    },
+    pkce: {
+      methods: ["S256", "plain"],
+    },
+    findAccount,
+    ttl: {
+      // Sessions
+      Session: 1209600, // 14 days in seconds
+      Interaction: 600, // 10 minutes
+      DeviceCode: 600, // 10 minutes
+      // Tokens
+      AuthorizationCode: 60, //  1 minute
+      IdToken: 3600, // 1 hour
+      AccessToken: 86400, // 24 hours
     },
     // routes: {
     //   authorization: "/auth",
@@ -50,21 +76,6 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
     //     return `/interaction/${interaction.uid}`;
     //   },
     // },
-    features: {
-      // devInteractions: { enabled: false }, // change in prod
-      deviceFlow: { enabled: true },
-      revocation: { enabled: true },
-      backchannelLogout: { enabled: true },
-      clientCredentials: { enabled: true },
-      userinfo: { enabled: true },
-      jwtUserinfo: { enabled: true },
-    },
-    clientBasedCORS(ctx, origin, client) {
-      return true;
-    },
-    pkce: {
-      methods: ["S256", "plain"],
-    },
     // ttl: {
     //   AccessToken: function AccessTokenTTL(ctx, token, client) {
     //     if (token.resourceServer) {
@@ -106,7 +117,6 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
     //   },
     //   Session: 1209600 /* 14 days in seconds */,
     // },
-    // findAccount: AccountClass.findByLogin,
   };
 
   return config;

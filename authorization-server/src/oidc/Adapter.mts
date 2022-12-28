@@ -1,5 +1,5 @@
 // https://github.com/panva/node-oidc-provider/blob/main/example/adapters/contributed/prisma.ts
-import { OidcModel, Prisma } from "@prisma/client";
+import { Prisma, OidcModel } from "@prisma/client";
 import { Adapter, AdapterPayload } from "oidc-provider";
 
 import { prisma } from "../config/prisma.mjs";

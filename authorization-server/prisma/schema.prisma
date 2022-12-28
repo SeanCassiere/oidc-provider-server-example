@@ -27,4 +27,5 @@ model OidcModel {
   updatedAt DateTime @updatedAt
 
   @@id([id, type])
+  @@map("oidc_model")
 }
