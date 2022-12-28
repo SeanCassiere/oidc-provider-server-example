@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "start": "NODE_ENV=production node dist/index.js",
+    "start": "NODE_ENV=production node dist/index.mjs",
     "dev": "NODE_ENV=development nodemon",
     "build:kill-dist": "rimraf ./dist",
     "build:code": "tsc",
