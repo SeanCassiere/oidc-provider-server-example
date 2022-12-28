@@ -1,6 +1,6 @@
 import type { Configuration, JWK } from "oidc-provider";
 // import { Account as AccountClass } from "../oidc/Account";
-// import { PrismaAdapter } from "../oidc/Adapter.mjs";
+import { PrismaAdapter } from "../oidc/Adapter.mjs";
 
 import { generateJwksKeys, getJwksKeystore } from "../oidc/jwks.mjs";
 import { env } from "./env.mjs";
@@ -11,34 +11,25 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
   const jsonKeystore = keystore.toJSON(true) as { keys: JWK[] };
 
   const config: Configuration = {
-    // adapter: PrismaAdapter,
+    adapter: PrismaAdapter,
     clients: [
-      // {
-      //   client_id: "foo",
-      //   client_secret: "bar",
-      //   redirect_uris: ["https://oidcdebugger.com/debug"],
-      // },
+      {
+        client_id: "foo",
+        client_secret: "bar",
+        redirect_uris: ["https://oidcdebugger.com/debug"],
+      },
     ],
-    // clientDefaults: {
-    //   response_types: ["code", "code id_token"],
-    //   grant_types: ["authorization_code", "implicit", "refresh_token", "client_credentials"],
-    // },
+    clientDefaults: {
+      response_types: ["code", "code id_token"],
+      grant_types: ["authorization_code", "implicit", "refresh_token", "client_credentials"],
+    },
     jwks: jsonKeystore,
     cookies: {
       keys: [env.OIDC_COOKIE],
     },
     claims: {
       email: ["email", "email_verified"],
-      profile: [
-        "family_name",
-        "given_name",
-        "middle_name",
-        "name",
-        "preferred_username",
-        "profile",
-        // "updated_at",
-        // "created_at",
-      ],
+      profile: ["family_name", "given_name", "middle_name", "name", "preferred_username", "profile"],
     },
     // routes: {
     //   authorization: "/auth",
@@ -60,7 +51,7 @@ export const OidcProviderConfiguration: () => Promise<Configuration> = async () 
     //   },
     // },
     features: {
-      devInteractions: { enabled: false }, // change in prod
+      // devInteractions: { enabled: false }, // change in prod
       deviceFlow: { enabled: true },
       revocation: { enabled: true },
       backchannelLogout: { enabled: true },

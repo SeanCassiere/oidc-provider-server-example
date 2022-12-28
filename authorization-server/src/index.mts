@@ -9,11 +9,11 @@ import { OidcProviderConfiguration } from "./config/oidc-provider.mjs";
 const app = express();
 const server = createServer(app);
 
-app.use(expressLayouts);
-app.set("layout", "_layout");
-app.set("view engine", "ejs");
+// app.use(expressLayouts);
+// app.set("layout", "_layout");
+// app.set("view engine", "ejs");
 
-app.use(express.static("public"));
+// app.use(express.static("public"));
 
 const ISSUER = env.SERVER_HOST + ":" + env.PORT;
 
@@ -21,13 +21,13 @@ async function main() {
   const oidcConfiguration = await OidcProviderConfiguration();
   const oidc = new Provider(ISSUER, oidcConfiguration);
 
-  app.get("/health", (_, res) => res.send({ status: "OK", uptime: process.uptime() }));
+  app.get("/health", (_, res) => res.send({ status: "OK", uptime: process?.uptime() ?? -1 }));
 
   // app.use("/oidc", oidc.callback());
   app.use(oidc.callback());
 
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  // app.use(express.json());
+  // app.use(express.urlencoded({ extended: true }));
 
   server.listen(env.PORT, () => {
     console.log(`🚀 app is running at ${ISSUER} in the ${env.NODE_ENV} environment`);
@@ -41,5 +41,3 @@ main().catch((err) => {
   console.error(err);
   process.exitCode = 1;
 });
-
-console.log("Hello World");
