@@ -1,6 +1,6 @@
 {
-	"watch": ["./src"],
-	"ext": "ts,json",
-	"ignore": ["./src/**/*.spec.ts"],
-	"exec": "ts-node ./src/index.ts"
+  "watch": ["./src"],
+  "ext": ".ts,.json,.mts,.cts",
+  "ignore": ["./src/**/*.spec.ts"],
+  "exec": "ts-node-esm --files ./src/index.mts"
 }
