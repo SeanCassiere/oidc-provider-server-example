@@ -4,22 +4,26 @@ import { Adapter, AdapterPayload } from "oidc-provider";
 
 import { prisma } from "../config/prisma.mjs";
 
-const types = [
-  "OidcModels",
-  "AccessToken",
-  "AuthorizationCode",
-  "RefreshToken",
-  "DeviceCode",
-  "ClientCredentials",
-  "Client",
-  "InitialAccessToken",
-  "RegistrationAccessToken",
-  "Interaction",
-  "ReplayDetection",
-  "PushedAuthorizationRequest",
-  "Grant",
-  "BackchannelAuthenticationRequest",
-].reduce((map, name) => ({ ...map, [name]: name }), {} as Record<string, string>);
+const types = (
+  [
+    // "OidcModels",
+
+    "Session",
+    "AccessToken",
+    "AuthorizationCode",
+    "RefreshToken",
+    "DeviceCode",
+    "ClientCredentials",
+    "Client",
+    "InitialAccessToken",
+    "RegistrationAccessToken",
+    "Interaction",
+    "ReplayDetection",
+    "PushedAuthorizationRequest",
+    "Grant",
+    "BackchannelAuthenticationRequest",
+  ] as const
+).reduce((map, name) => ({ ...map, [name]: name }), {} as Record<string, string>);
 
 function prepare(doc: OidcModel) {
   const isPayloadJson = doc.payload && typeof doc.payload === "object" && !Array.isArray(doc.payload);
@@ -41,9 +45,11 @@ export class PrismaAdapter implements Adapter {
 
   constructor(name: string) {
     this.type = types[name];
+    console.log("\nconstructor: ", this.type);
   }
 
   async upsert(id: string, payload: AdapterPayload, expiresIn?: number): Promise<void> {
+    console.log("\nupsert: ", this.type, id);
     const data = {
       type: this.type,
       payload: payload as Prisma.JsonObject,
@@ -66,6 +72,8 @@ export class PrismaAdapter implements Adapter {
   }
 
   async find(id: string): Promise<AdapterPayload | undefined> {
+    console.log("\nfind", this.type, id);
+
     const doc = await prisma.oidcModel.findUnique({
       where: {
         id_type: {
@@ -76,13 +84,16 @@ export class PrismaAdapter implements Adapter {
     });
 
     if (!doc || (doc.expiresAt && doc.expiresAt < new Date())) {
+      console.log("ERROR NOT found: ", this.type, id);
       return undefined;
     }
+    console.log("found: ", this.type, id);
 
     return prepare(doc);
   }
 
   async findByUserCode(userCode: string): Promise<AdapterPayload | undefined> {
+    console.log("\findByUserCode", this.type, userCode);
     const doc = await prisma.oidcModel.findFirst({
       where: {
         userCode,
@@ -97,6 +108,7 @@ export class PrismaAdapter implements Adapter {
   }
 
   async findByUid(uid: string): Promise<AdapterPayload | undefined> {
+    console.log("\nfindByUid", this.type, uid);
     const doc = await prisma.oidcModel.findUnique({
       where: {
         uid,
@@ -111,6 +123,7 @@ export class PrismaAdapter implements Adapter {
   }
 
   async consume(id: string): Promise<void> {
+    console.log("\nconsume: ", this.type, id);
     await prisma.oidcModel.update({
       where: {
         id_type: {
@@ -125,6 +138,7 @@ export class PrismaAdapter implements Adapter {
   }
 
   async destroy(id: string): Promise<void> {
+    console.log("\ndestroy: ", this.type, id);
     await prisma.oidcModel.delete({
       where: {
         id_type: {
@@ -136,6 +150,7 @@ export class PrismaAdapter implements Adapter {
   }
 
   async revokeByGrantId(grantId: string): Promise<void> {
+    console.log("\nrevokeByGrantId: ", this.type, grantId);
     await prisma.oidcModel.deleteMany({
       where: {
         grantId,

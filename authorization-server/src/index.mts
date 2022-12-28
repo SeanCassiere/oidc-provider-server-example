@@ -20,6 +20,27 @@ const ISSUER = env.SERVER_HOST + ":" + env.PORT;
 async function main() {
   const oidcConfiguration = await OidcProviderConfiguration();
   const oidc = new Provider(ISSUER, oidcConfiguration);
+  oidc.on("server_error", (_, err) => {
+    console.log("server_error ", err);
+  });
+  oidc.on("authorization_code.saved", (code) => {
+    console.log("---auth_code saved ", code);
+  });
+  oidc.on("authorization_code.consumed", (code) => {
+    console.log("---auth_code consumed ", code);
+  });
+  oidc.on("authorization_code.destroyed", (code) => {
+    console.log("---auth_code destroyed ", code);
+  });
+  oidc.on("authorization.success", () => {
+    console.log("---auth success");
+  });
+  oidc.on("authorization.error", (_, err) => {
+    console.log("---auth error ", err);
+  });
+  oidc.on("authorization.accepted", () => {
+    console.log("---auth accepted");
+  });
 
   app.get("/health", (_, res) => res.send({ status: "OK", uptime: process?.uptime() ?? -1 }));
 
