@@ -10,20 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model OidcModel {
-  id             String    @id @default(cuid())
-  oidc_id        String    @unique
-  model_type     String
-  model_metadata Json
-  grant_id       String?
-  user_code      String?
-  u_id           String?
-  consumed       Boolean   @default(false)
-  consumedAt     DateTime?
-  client_id      String?
-  account_id     String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  @@index([oidc_id])
+model Foo {
+  id  String @id @default(cuid())
+  bar String
 }
