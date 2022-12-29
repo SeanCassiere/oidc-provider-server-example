@@ -10,7 +10,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Foo {
-  id  String @id @default(cuid())
-  bar String
+model OidcModel {
+  id   String @default(cuid())
+  type String
+
+  grantId  String?
+  userCode String?
+  uid      String? @unique
+  payload  Json?
+
+  expiresAt  DateTime?
+  consumed   Boolean   @default(false)
+  consumedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([id, type])
+  @@map("oidc_model")
 }
