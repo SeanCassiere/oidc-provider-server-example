@@ -38,6 +38,6 @@
     "node-jose": "^2.2.0",
     "oidc-provider": "^8.0.0",
     "querystring": "^0.2.1",
-    "zod": "^3.20.2"
+    "zod": "^3.22.3"
   }
 }
